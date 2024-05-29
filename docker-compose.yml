@@ -1,0 +1,45 @@
+networks:
+  default:
+volumes:
+  db:
+services:
+  db:
+    container_name: db
+    image: mariadb:10.6.16
+    networks:
+      - default
+    volumes:
+      - db:/var/lib/mysql
+    restart: always
+    environment:
+      - MARIADB_ROOT_PASSWORD=admin
+      - MARIADB_DATABASE=db
+    ports:
+      - 3306:3306
+  web:
+    container_name: web
+    image: php:7.4.33-apache
+    networks:
+      - default
+    volumes:
+      - ./public_html:/var/www/html
+      - ./logs:/var/log/apache2
+    build:
+      context: .
+      dockerfile: dockerfile
+    ports:
+      - 80:80
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin
+    networks:
+      - default
+    restart: always
+    environment:
+      - PMA_HOST=db
+      - PMA_PORT=3306
+      - PMA_USER=root
+      - PMA_PASSWORD=admin
+      - UPLOAD_LIMIT=500M
+    ports:
+      - 8080:80
